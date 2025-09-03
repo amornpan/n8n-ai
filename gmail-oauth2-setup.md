@@ -1,119 +1,141 @@
-# การตั้งค่า Gmail OAuth2 สำหรับ n8n
+# การตั้งค่า Gmail OAuth2 API ใน n8n
 
-คู่มือฉบับสมบูรณ์สำหรับการสร้างและตั้งค่า Gmail OAuth2 Credentials เพื่อใช้งานกับ n8n
+## ข้อมูลจากการตั้งค่าปัจจุบัน
 
-## ขั้นตอนที่ 1: เข้า Google Cloud Console
+### รายละเอียด Credential
+- **ชื่อ**: Gmail account
+- **ประเภท**: Gmail OAuth2 API
+- **สถานะ**: Account connected ✅
+- **วันที่สร้าง**: 2 September
+- **อัปเดตล่าสุด**: 16 hours ago
 
-1. ไปที่ [Google Cloud Console](https://console.cloud.google.com)
-2. เข้าสู่ระบบด้วย Google Account ของคุณ
-3. เลือกโปรเจค หรือสร้างโปรเจคใหม่
+## การตั้งค่าที่ใช้
 
-## ขั้นตอนที่ 2: เปิดใช้งาน Gmail API
+### 1. OAuth Redirect URL
+```
+http://localhost:5678/rest/oauth2-credential/callback
+```
+**หมายเหตุ**: URL นี้ต้องใช้เมื่อถูกขอให้ใส่ OAuth callback หรือ redirect URL ใน Gmail
 
-1. ไปที่ **"APIs & Services"** > **"Library"**
-2. ค้นหา **"Gmail API"**
-3. คลิก **"ENABLE"** เพื่อเปิดใช้งาน
+### 2. Client ID
+```
+4340295116-pfc7qt7lo1a1njssofi7h6eta4rucdrk.apps.googleusercontent.com
+```
 
-## ขั้นตอนที่ 3: ตั้งค่า OAuth Consent Screen
+### 3. Client Secret
+```
+••••••••••••••••••••••••••••••••••••••••••••••••••••••••
+```
+(ถูกซ่อนด้วยเหตุผลด้านความปลอดภัย)
 
-1. ไปที่ **"APIs & Services"** > **"OAuth consent screen"**
-2. เลือก User Type:
-   - **External**: สำหรับใช้งานจริง
-   - **Internal**: สำหรับองค์กรเท่านั้น (ถ้ามี Google Workspace)
+## วิธีการตั้งค่า Gmail OAuth2 API
 
-### 3.1 App Information
-- **App name**: ใส่ชื่อแอป (เช่น "n8n Gmail Integration")
-- **User support email**: เลือกอีเมลของคุณ
-- **Developer contact information**: ใส่อีเมลของคุณ
-- กด **"SAVE AND CONTINUE"**
+### Step 1: สร้าง Google Cloud Project และเปิดใช้งาน APIs
+1. ไปที่ [Google Cloud Console](https://console.cloud.google.com/)
+2. สร้าง Project ใหม่หรือเลือก Project ที่มีอยู่
+3. เปิดใช้งาน **Gmail API**:
+   - ไปที่ **APIs & Services** > **Library**
+   - ค้นหา "Gmail API"
+   - คลิก **Enable**
 
-### 3.2 Scopes (ข้าม)
-- กด **"SAVE AND CONTINUE"**
+### Step 2: สร้าง OAuth 2.0 Credentials
+1. ไปที่ **APIs & Services** > **Credentials**
+2. คลิก **Create Credentials** > **OAuth 2.0 Client IDs**
+3. เลือก Application type: **Web application**
+4. ตั้งชื่อ Client (เช่น "n8n Gmail Integration")
 
-### 3.3 Test Users (สำคัญ!)
-- คลิก **"+ ADD USERS"**
-- เพิ่มอีเมลที่จะใช้งาน Gmail API
-- กด **"SAVE AND CONTINUE"**
+### Step 3: กำหนด Authorized redirect URIs
+1. ในส่วน **Authorized redirect URIs**
+2. เพิ่ม URL: 
+   ```
+   http://localhost:5678/rest/oauth2-credential/callback
+   ```
+   **สำคัญ**: URL นี้ต้องตรงกับที่แสดงใน n8n เป็นอย่างยิ่ง
 
-### 3.4 Summary
-- ตรวจสอบข้อมูลและกด **"BACK TO DASHBOARD"**
+### Step 4: รับ Client ID และ Client Secret
+1. หลังจากสร้างเสร็จ จะได้รับ:
+   - **Client ID**: (รูปแบบ: xxxxxx-xxxxx.apps.googleusercontent.com)
+   - **Client Secret**: (string แบบสุ่ม)
+2. Download JSON file สำหรับเก็บไว้สำรอง
 
-## ขั้นตอนที่ 4: สร้าง OAuth2 Credentials
+### Step 5: ตั้งค่าใน n8n
+1. ไปที่ **Credentials** ใน n8n
+2. เลือก **Gmail OAuth2 API**
+3. กรอกข้อมูล:
+   - **Client ID**: paste จาก Google Cloud Console
+   - **Client Secret**: paste จาก Google Cloud Console
+4. คลิก **Sign in with Google**
+5. อนุญาตสิทธิ์ที่จำเป็น
 
-1. ไปที่ **"APIs & Services"** > **"Credentials"**
-2. คลิก **"+ CREATE CREDENTIALS"**
-3. เลือก **"OAuth 2.0 Client IDs"**
+## OAuth Redirect URL สำหรับสภาพแวดล้อมต่างๆ
 
-### 4.1 ตั้งค่า OAuth Client
-- **Application type**: **Web application**
-- **Name**: ใส่ชื่อที่เข้าใจง่าย (เช่น "n8n Gmail Client")
+### Development (Local)
+```
+http://localhost:5678/rest/oauth2-credential/callback
+```
 
-### 4.2 Authorized redirect URIs
-- คลิก **"+ ADD URI"**
-- ใส่: `http://localhost:5678/rest/oauth2-credential/callback`
-- กด **"CREATE"**
+### Production (ตัวอย่าง)
+```
+https://your-n8n-domain.com/rest/oauth2-credential/callback
+```
+**หมายเหตุ**: ต้องเพิ่ม URL นี้ใน Google Cloud Console ด้วย
 
-## ขั้นตอนที่ 5: เก็บ Credentials
+## การใช้งาน
 
-หลังจากสร้าง OAuth Client แล้ว คุณจะได้:
-- **Client ID**: เก็บไว้ในที่ปลอดภัย
-- **Client Secret**: เก็บไว้ในที่ปลอดภัย
+Gmail OAuth2 API นี้สามารถใช้กับ Gmail node สำหรับ:
+- **ส่งอีเมล** (Send Email)
+- **อ่านอีเมล** (Get Email)
+- **ค้นหาอีเมล** (Search Email)
+- **จัดการ Labels**
+- **อ่าน Attachments**
 
-## ขั้นตอนที่ 6: ตั้งค่าใน n8n
+## ตัวอย่างการใช้งานใน Workflow
 
-1. ในหน้าตั้งค่า Gmail credentials ของ n8n
-2. เลือก **"OAuth2 (recommended)"**
-3. ใส่ข้อมูล:
-   - **OAuth Redirect URL**: `http://localhost:5678/rest/oauth2-credential/callback`
-   - **Client ID**: ที่ได้จาก Google Cloud Console
-   - **Client Secret**: ที่ได้จาก Google Cloud Console
-4. กด **"Save"**
-5. กด **"Connect my account"** เพื่อ authenticate
+### 1. ส่งอีเมลอัตโนมัติ
+```
+Trigger → Gmail (Send Email)
+```
 
-## การแก้ไขข้อผิดพลาด
+### 2. ตอบกลับอีเมลเมื่อได้รับ
+```
+Gmail Trigger → Gmail (Reply)
+```
 
-### ปัญหา: "access_denied" หรือ "ยังไม่ผ่านการยืนยัน"
+### 3. ประมวลผล Attachments
+```
+Gmail (Get Email) → Extract Attachments → Process File
+```
 
-**วิธีแก้:**
-1. ไปที่ **OAuth consent screen**
-2. เพิ่มอีเมลที่ใช้งานใน **Test users**
-3. หรือ **"PUBLISH APP"** เพื่อใช้งานแบบ production
+## Scopes ที่ใช้งาน
+Gmail OAuth2 API ใน n8n โดยปกติจะขออนุญาต:
+- `https://www.googleapis.com/auth/gmail.readonly` - อ่านอีเมล
+- `https://www.googleapis.com/auth/gmail.send` - ส่งอีเมล
+- `https://www.googleapis.com/auth/gmail.modify` - แก้ไขอีเมล
 
-### ปัญหา: "redirect_uri_mismatch"
+## Troubleshooting
 
-**วิธีแก้:**
-1. ตรวจสอบ Authorized redirect URIs ใน OAuth Client
-2. ต้องตรงกับ: `http://localhost:5678/rest/oauth2-credential/callback`
+### ปัญหาที่พบบ่อย
+1. **"redirect_uri_mismatch"**
+   - ตรวจสอบว่า OAuth Redirect URL ใน Google Cloud Console ตรงกับใน n8n
+   
+2. **"invalid_client"**
+   - ตรวจสอบ Client ID และ Client Secret
+   
+3. **"access_denied"**
+   - ผู้ใช้ไม่อนุญาตสิทธิ์ หรือ Gmail API ไม่ได้เปิดใช้งาน
 
-## Scopes ที่จำเป็นสำหรับ Gmail
+### การแก้ไข
+- ตรวจสอบว่า Gmail API เปิดใช้งานใน Google Cloud Project
+- ตรวจสอบ OAuth consent screen ได้ตั้งค่าถูกต้อง
+- ลอง Reconnect อีกครั้งหากมีปัญหา
 
-n8n จะขอ permissions เหล่านี้โดยอัตโนมัติ:
-- `https://www.googleapis.com/auth/gmail.readonly`
-- `https://www.googleapis.com/auth/gmail.send`
-- `https://www.googleapis.com/auth/gmail.compose`
-- `https://www.googleapis.com/auth/gmail.modify`
+## ความปลอดภัย
+- เก็บ Client Secret ไว้เป็นความลับ
+- ใช้ HTTPS ใน production environment
+- ตรวจสอบ redirect URI ให้ถูกต้องเสมอ
+- พิจารณาใช้ Service Account หากเป็น server-to-server communication
 
-## การรักษาความปลอดภัย
-
-1. **เก็บ Client Secret ให้ปลอดภัย** - อย่าแชร์หรือ commit ลง version control
-2. **ใช้ Test users เฉพาะคนที่จำเป็น**
-3. **ตรวจสอบ OAuth consent screen ให้ถูกต้อง**
-4. **ใช้ HTTPS ในการ production** (แทน http://localhost)
-
-## หมายเหตุเพิ่มเติม
-
-- การตั้งค่านี้ใช้สำหรับ development environment (localhost:5678)
-- สำหรับ production ต้องเปลี่ยน redirect URI และใช้ HTTPS
-- Google มี quota limits สำหรับ API calls
-- ควรตรวจสอบ usage ใน Google Cloud Console เป็นประจำ
-
-## ลิงก์ที่เป็นประโยชน์
-
-- [Google Cloud Console](https://console.cloud.google.com)
-- [Gmail API Documentation](https://developers.google.com/gmail/api)
-- [n8n Gmail Node Documentation](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.gmail/)
-
----
-
-สร้างเมื่อ: $(date)
-สำหรับ: n8n Gmail OAuth2 Integration
+## หมายเหตุ
+- Client ID: `4340295116-pfc7qt7lo1a1njssofi7h6eta4rucdrk.apps.googleusercontent.com` คือ ID เฉพาะสำหรับ Project นี้
+- การเชื่อมต่อสำเร็จแล้วตามที่แสดงใน Account connected status
+- URL callback ใช้ localhost:5678 แสดงว่าเป็น development environment
