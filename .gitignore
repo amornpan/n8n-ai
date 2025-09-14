@@ -1,7 +1,7 @@
 # N8N Google Services Integration - Git Ignore
 
 # Workshop folder - ไม่ต้องการ track ไฟล์การทดสอบ
-workshop
+workshops/
 
 # N8N specific files
 *.n8n
