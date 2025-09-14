@@ -105,10 +105,10 @@
 
 ```mermaid
 flowchart LR
-    A[⚡ Manual Trigger<br/>"Test workflow"] --> B[📁 Google Drive<br/>"search file/folder"]
-    B --> C[📊 Google Sheets<br/>"read sheet"]
-    C --> D[📧 Gmail<br/>"send message"]
-    D --> E[✅ Complete]
+    A["⚡ Manual Trigger<br/>Test workflow"] --> B["📁 Google Drive<br/>search file/folder"]
+    B --> C["📊 Google Sheets<br/>read sheet"]
+    C --> D["📧 Gmail<br/>send message"]
+    D --> E["✅ Complete"]
     
     style A fill:#2d3748,stroke:#4a5568,color:#fff
     style B fill:#0f9d58,stroke:#0d8043,color:#fff
