@@ -1,0 +1,394 @@
+{
+  "name": "Automating Lead Nurturing",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1reUT4G_etcY5DkD_V8wbGbtLHrO8GvhXcINP6pHjm24",
+          "mode": "list",
+          "cachedResultName": "lead_form_responses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1reUT4G_etcY5DkD_V8wbGbtLHrO8GvhXcINP6pHjm24/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2130396701,
+          "mode": "list",
+          "cachedResultName": "lead_form_responses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1reUT4G_etcY5DkD_V8wbGbtLHrO8GvhXcINP6pHjm24/edit#gid=2130396701"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -592,
+        -304
+      ],
+      "id": "601fb30c-5af8-4394-b349-7a03cc8a9812",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "SrXMvtJxxcuwMk7A",
+          "name": "Google Sheets Trigger account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1reUT4G_etcY5DkD_V8wbGbtLHrO8GvhXcINP6pHjm24",
+          "mode": "list",
+          "cachedResultName": "lead_form_responses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1reUT4G_etcY5DkD_V8wbGbtLHrO8GvhXcINP6pHjm24/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2130396701,
+          "mode": "list",
+          "cachedResultName": "lead_form_responses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1reUT4G_etcY5DkD_V8wbGbtLHrO8GvhXcINP6pHjm24/edit#gid=2130396701"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -576,
+        -112
+      ],
+      "id": "30981231-0abc-4201-ba92-fe5693311f9d",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5SJLEngeh5ORJyOj",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -368,
+        -112
+      ],
+      "id": "0dd1690e-5fa9-478f-8828-cc28c76501b6",
+      "name": "Wait",
+      "webhookId": "bb31f63e-cfd2-413a-9345-69f883cc5d30"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a lead nurturing assistant. Your job is to write an email to a new lead who just filled out the form on our website which is an AI consulting website. Your name is Pam and you work as a customer service representative for ABC Corp. Make sure your email is friendly and always signs off in a professional way. You should never include any placeholders like [Lead's Name], [Your Name], [Your Company], etc. Please only address the lead by their first name if they entered their full name.\n\nHere is information about the lead:\nName: {{ $json.name }}\nEmail: {{ $json[\"email address\"] }}\nServices Interested In: {{ $json[\"services interested in\"] }}\nBudget Range: {{ $json[\"budget range\"] }}\nPreferred Contact Time: {{ $json[\"preferred contact time\"] }}\nProject Timeline: {{ $json[\"project timeline\"] }}\nAdditional Comments: {{ $json[\"additional comments\"] }}\n\nYour email should be very personalized based on what they entered into the form. You should thank them for their interest that they specified and include any relevant information. At the end please include a call to action like if they have any questions or if they'd like to schedule a discovery call.\n\nYou should also output three fields separately. One for the email subject called \"Subject\", one for the email body called \"Body\", and one called \"Tag\". The fields must always be \"Subject\", \"Body\", and \"Tag\" or the automation will break.\n\nThe subject should always start with \"ABC Corp:\" then a brief description of the email.\n\nCRITICAL TAG ASSIGNMENT RULES - Follow this logic exactly:\n\nStep 1: Check Project Timeline first\n- If timeline = \"Immediate\" → Tag = \"Hot Lead\" (STOP HERE, don't check other criteria)\n\nStep 2: If not immediate, check Budget Range\n- If budget contains \"Over $10000\" → Tag = \"High-Value Lead\"\n- If budget contains \"5000\" or \"5,000-10,000\" → Tag = \"Medium-Value Lead\"\n- If budget contains \"Under $2000\" or \"under $5000\" → Tag = \"Low-Value Lead\"\n\nStep 3: If unclear, default to \"Medium-Value Lead\"\n\nFOR THIS LEAD: Timeline is \"Immediate\" so Tag MUST be \"Hot Lead\"\n\nOutput this as JSON format with exactly these three fields: Subject, Body, Tag\n\nExample output format:\n{\n  \"Subject\": \"ABC Corp: Welcome and Next Steps for Your AI Project\",\n  \"Body\": \"Hi Sarah,\\n\\nThank you for reaching out to ABC Corp about our AI consulting services...\",\n  \"Tag\": \"Hot Lead\"\n}",
+              "role": "system"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -160,
+        -112
+      ],
+      "id": "355391fb-7379-4cde-a39d-5b18490a5197",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "2LR4QxBLAsSs0Fx3",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "vault3.ai@gmail.com",
+        "subject": "={{ $json.message.content.Subject }}",
+        "emailType": "text",
+        "message": "={{ $json.message.content.Body }}",
+        "options": {
+          "appendAttribution": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        192,
+        -112
+      ],
+      "id": "c060efef-4648-446d-9507-d578eddbbbb0",
+      "name": "Send a message",
+      "webhookId": "3dd55c8e-ed2d-4868-9b0b-fb471bb0780f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "X61ZAdYrAEeCC0R6",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1reUT4G_etcY5DkD_V8wbGbtLHrO8GvhXcINP6pHjm24",
+          "mode": "list",
+          "cachedResultName": "lead_form_responses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1reUT4G_etcY5DkD_V8wbGbtLHrO8GvhXcINP6pHjm24/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2130396701,
+          "mode": "list",
+          "cachedResultName": "lead_form_responses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1reUT4G_etcY5DkD_V8wbGbtLHrO8GvhXcINP6pHjm24/edit#gid=2130396701"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "name": "={{ $('Get row(s) in sheet').item.json.name }}",
+            "status": "={{ $('Get row(s) in sheet').item.json.name }} is contacted when {{ $now }}",
+            "tag": "={{ $json.message.content.Tag }}"
+          },
+          "matchingColumns": [
+            "name"
+          ],
+          "schema": [
+            {
+              "id": "name",
+              "displayName": "name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email address",
+              "displayName": "email address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "services interested in",
+              "displayName": "services interested in",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "budget range",
+              "displayName": "budget range",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "preferred contact time",
+              "displayName": "preferred contact time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "project timeline",
+              "displayName": "project timeline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "additional comments",
+              "displayName": "additional comments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tag",
+              "displayName": "tag",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        192,
+        96
+      ],
+      "id": "6529fbc1-a8ef-42fe-b17c-ecbe89b1f0e9",
+      "name": "Update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5SJLEngeh5ORJyOj",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09CQ86U2GP",
+          "mode": "list",
+          "cachedResultName": "all-nt-networking-n8n"
+        },
+        "text": "=New {{ $('Message a model').item.json.message.content.Tag }} Alert! 🚨\nName: {{ $('Get row(s) in sheet').item.json.name }}\nInterest: {{ $('Get row(s) in sheet').item.json['services interested in'] }}\nBudget: {{ $('Get row(s) in sheet').item.json['budget range'] }}\nCheck the lead in Google Sheets for more details! 👆\nhttps://docs.google.com/spreadsheets/d/1reUT4G_etcY5DkD_V8wbGbtLHrO8GvhXcINP6pHjm24/edit#usp=sharing",
+        "otherOptions": {
+          "includeLinkToWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        192,
+        288
+      ],
+      "id": "9e22652d-f43e-4855-ae64-17ca3161e796",
+      "name": "Send a message1",
+      "webhookId": "d993f839-dd89-471a-a38e-b58fa87e9877",
+      "credentials": {
+        "slackApi": {
+          "id": "dJPkegEkXJBnm1Jo",
+          "name": "Slack account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger": {
+      "main": [
+        []
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0ccdd6cf-3e40-4d7e-b38f-9c0f1a6c0020",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "afa0ecaa15006df70694427bbe78b755028a6db7ccecf8b53c94a8bc8480c723"
+  },
+  "id": "2QpznOdZf6yIsd7z",
+  "tags": []
+}
