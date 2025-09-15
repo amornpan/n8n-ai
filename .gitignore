@@ -2,6 +2,7 @@
 
 # Workshop folder - ไม่ต้องการ track ไฟล์การทดสอบ
 workshops/
+N8N-Google-Services-Integration/N8N Integration with Google Services.json
 
 # N8N specific files
 *.n8n
