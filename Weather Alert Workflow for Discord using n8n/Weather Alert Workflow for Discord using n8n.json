@@ -1,0 +1,180 @@
+{
+  "name": "Weather Alert Workflow for Discord using n8n",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -480,
+        -16
+      ],
+      "id": "331d9b0f-768a-488e-ab63-fbaf92453d18",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "cityName": "bangkok",
+        "language": "th"
+      },
+      "type": "n8n-nodes-base.openWeatherMap",
+      "typeVersion": 1,
+      "position": [
+        -272,
+        -16
+      ],
+      "id": "1dae17bf-2ab7-4b2b-9c7e-da7ea2826b95",
+      "name": "OpenWeatherMap",
+      "credentials": {
+        "openWeatherMapApi": {
+          "id": "HQF2MxbxO5hmOKM2",
+          "name": "OpenWeatherMap account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "59dc29f8-17f7-4a0e-adf5-103f12072d5b",
+              "name": "weather_report",
+              "value": "=  {{ $json.name }}{{ $json.sys.country }}",
+              "type": "string"
+            },
+            {
+              "id": "254085d9-22a4-43d5-bc2f-42970f5c084e",
+              "name": "weather",
+              "value": "={{ $json.weather[0].description }}",
+              "type": "string"
+            },
+            {
+              "id": "b29e8add-5679-408e-8e0d-b002a81561e0",
+              "name": "temp",
+              "value": "={{ $json.main.temp }}℃",
+              "type": "string"
+            },
+            {
+              "id": "27f5e419-3434-4a65-8503-8e1c3c277269",
+              "name": "humidity",
+              "value": "={{ $json.main.humidity }} %",
+              "type": "string"
+            },
+            {
+              "id": "3f115ff0-ce48-4191-8d57-8d1cc236c10f",
+              "name": "wind_speed",
+              "value": "={{ $json.wind.speed }} m/s",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -64,
+        -16
+      ],
+      "id": "0a17747e-c426-41b7-b5a5-d47baee17958",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "authentication": "webhook",
+        "content": "=รายงานสภาพอากาศประจำวัน:\nสถานที่:{{ $json.weather_report }}\nสภาพอากาศ: {{ $json.weather }}\nอุณหภฺมิ: {{ $json.temp }}\nความชื้นสัมพัทธ์: {{ $json.humidity }}\nความเร็วลม: {{ $json.wind_speed }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.discord",
+      "typeVersion": 2,
+      "position": [
+        144,
+        -16
+      ],
+      "id": "9f861d5f-e019-4306-ae6c-e87cb2385a84",
+      "name": "Discord",
+      "webhookId": "e21438ca-c235-47c5-9b95-6be04c6cb77c",
+      "credentials": {
+        "discordWebhookApi": {
+          "id": "0mtQYmmH1u1T1HST",
+          "name": "Discord Webhook account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        352,
+        -16
+      ],
+      "id": "8a3988ee-af20-42fa-9d24-60d65aa195a0",
+      "name": "No Operation, do nothing"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "OpenWeatherMap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenWeatherMap": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3bfd2ac5-5cef-49bd-a502-c31b53fc1a9a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "afa0ecaa15006df70694427bbe78b755028a6db7ccecf8b53c94a8bc8480c723"
+  },
+  "id": "5zzNnNdZ5FbIN2aC",
+  "tags": []
+}
